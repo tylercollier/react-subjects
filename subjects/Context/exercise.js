@@ -21,12 +21,25 @@ import React, { PropTypes } from 'react'
 import { render } from 'react-dom'
 
 class Form extends React.Component {
+  state = {
+    values: {},
+  }
   static childContextTypes = {
-    submit: PropTypes.func.isRequired
+    submit: PropTypes.func.isRequired,
+    onChangeValue: PropTypes.func.isRequired,
   }
   getChildContext() {
     return {
-      submit: this.props.onSubmit
+      submit: this.props.onSubmit,
+      onChangeValue: (name, value) => {
+        this.setState({
+          values: {
+            [name]: value,
+          }
+        }, () => {
+          this.props.onChange(this.state.values)
+        })
+      }
     }
   }
   render() {
@@ -46,6 +59,7 @@ class SubmitButton extends React.Component {
 class TextInput extends React.Component {
   static contextTypes = {
     submit: PropTypes.func.isRequired,
+    onChangeValue: PropTypes.func.isRequired,
   }
   render() {
     return (
@@ -54,11 +68,13 @@ class TextInput extends React.Component {
         name={this.props.name}
         placeholder={this.props.placeholder}
         onKeyPress={event => {
-          console.log(Object.keys(event))
-          console.log('keyCode', event.key)
           if (event.key === 'Enter') {
             this.context.submit()
           }
+        }}
+        onChange={(event) => {
+          console.log('event', event)
+          this.context.onChangeValue(this.props.name, event.target.value)
         }}
       />
     )
@@ -70,12 +86,16 @@ class App extends React.Component {
     alert('YOU WIN!')
   }
 
+  onChange(values) {
+    console.log('values', values)
+  }
+
   render() {
     return (
       <div>
         <h1>This isn't even my final <code>&lt;Form/&gt;</code>!</h1>
 
-        <Form onSubmit={this.handleSubmit}>
+        <Form onChange={this.onChange} onSubmit={this.handleSubmit}>
           <p>
             <TextInput name="firstName" placeholder="First Name"/> {' '}
             <TextInput name="lastName" placeholder="Last Name"/>
