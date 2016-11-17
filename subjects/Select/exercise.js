@@ -14,15 +14,24 @@ class Select extends React.Component {
   static propTypes = {
     onChange: func,
     value: any,
-    defaultValue: any
+    defaultValue: any,
+  }
+
+  state = {
+    showList: true,
   }
 
   render() {
     return (
       <div className="select">
-        <div className="label">label <span className="arrow">▾</span></div>
+        <div onClick={() => this.setState({ showList: true })} className="label">{this.props.value} <span className="arrow">▾</span></div>
         <div className="options">
-          {this.props.children}
+          {this.state.showList ? React.Children.map(this.props.children, c => {
+            return React.cloneElement(c, { onChange: value => {
+              this.setState({ showList: false })
+              this.props.onChange(value)
+            }})
+          }) : []}
         </div>
       </div>
     )
@@ -33,7 +42,7 @@ class Select extends React.Component {
 class Option extends React.Component {
   render() {
     return (
-      <div className="option">{this.props.children}</div>
+      <div onClick={event => this.props.onChange(this.props.value)} className="option">{this.props.children}</div>
     )
   }
 }
@@ -43,7 +52,7 @@ class App extends React.Component {
     selectValue: 'dosa'
   }
 
-  setToMintChutney() {
+  setToMintChutney = () => {
    this.setState({selectValue: 'mint-chutney'})
   }
 
