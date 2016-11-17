@@ -33,24 +33,43 @@ import React, { PropTypes } from 'react'
 import { render } from 'react-dom'
 
 class RadioGroup extends React.Component {
+  state = {
+    value: this.props.defaultValue,
+  }
   static propTypes = {
     defaultValue: PropTypes.string
   }
 
   render() {
-    return <div>{this.props.children}</div>
+    // return <div>{this.props.children}</div>
+
+    const { value } = this.state
+
+    return (
+      <div>
+        {
+          React.Children.map(this.props.children, (c, index) => {
+            return React.cloneElement(c, {
+              isSelected: c.props.value === value,
+              onActivate: () => { this.setState({ value: c.props.value }) }
+            })
+          })
+        }
+      </div>
+    )
   }
 }
 
 class RadioOption extends React.Component {
   static propTypes = {
-    value: PropTypes.string
+    value: PropTypes.string,
+    onActivate: PropTypes.func
   }
 
   render() {
     return (
       <div>
-        <RadioIcon isSelected={false}/> {this.props.children}
+        <RadioIcon activate={this.props.onActivate} isSelected={this.props.isSelected}/> {this.props.children}
       </div>
     )
   }
@@ -74,6 +93,7 @@ class RadioIcon extends React.Component {
           cursor: 'pointer',
           background: this.props.isSelected ? 'rgba(0, 0, 0, 0.05)' : ''
         }}
+        onClick={this.props.activate}
       />
     )
   }
