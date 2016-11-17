@@ -11,13 +11,26 @@ import 'bootstrap-webpack'
 
 class Modal extends React.Component {
   static propTypes = {
+    isOpen: PropTypes.bool,
     title: PropTypes.string.isRequired,
     children: PropTypes.node
   }
 
+  componentDidUpdate() {
+    console.log('isOpen', this.props.isOpen)
+    // $(this.refs.modal).modal(this.props.isOpen ? 'show' : 'hide')
+    if (this.props.isOpen) {
+      $(this.refs.modal).modal('show')
+    } else {
+      $(this.refs.modal).modal('hide')
+    }
+    // $(findDOMNode(this)).modal(this.props.isOpen ? 'show' : 'hide')
+    console.log('called ' + (this.props.isOpen ? 'show' : 'hide'))
+  }
+
   render() {
     return (
-      <div className="modal fade">
+      <div ref="modal" className="modal fade">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -34,17 +47,26 @@ class Modal extends React.Component {
 }
 
 class App extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      isOpen: false,
+    }
+  }
   openModal = () => {
-    $(findDOMNode(this.refs.modal)).modal('show')
+    // $(findDOMNode(this.refs.modal)).modal('show')
+    this.setState({ isOpen: true })
   }
 
   closeModal = () => {
-    $(findDOMNode(this.refs.modal)).modal('hide')
+    // $(findDOMNode(this.refs.modal)).modal('hide')
+    this.setState({ isOpen: false })
   }
 
   render() {
     return (
       <div className="container">
+        <pre>{JSON.stringify(this.state)}</pre>
         <h1>Let’s make bootstrap modal declarative</h1>
 
         <button
@@ -52,7 +74,7 @@ class App extends React.Component {
           onClick={this.openModal}
         >open modal</button>
 
-        <Modal ref="modal" title="Declarative is better">
+        <Modal isOpen={this.state.isOpen} title="Declarative is better">
           <p>Calling methods on instances is a FLOW not a STOCK!</p>
           <p>It’s the dynamic process, not the static program in text space.</p>
           <p>You have to experience it over time, rather than in snapshots of state.</p>
