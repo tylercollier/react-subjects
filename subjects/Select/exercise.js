@@ -92,6 +92,23 @@ class Lightbulb2 extends React.Component {
   }
 }
 
+class Lightbulb3 extends React.Component {
+  state = {
+    isOn: false,
+  }
+
+  render() {
+    return <div>
+      Light bulb is {this.state.isOn ? 'on' : 'off' }
+      <div>
+        {React.Children.map(this.props.children, c => {
+          return React.cloneElement(c, Object.assign({}, c.props, { turnOn: () => this.setState({ isOn: true }) }))
+        })}
+      </div>
+    </div>
+  }
+}
+
 class App extends React.Component {
   state = {
     selectValue: 'dosa'
@@ -144,6 +161,14 @@ class App extends React.Component {
             <button onClick={flip}>Flip</button>
           </div>
         )}/>
+
+        <Lightbulb3>
+          {React.createElement((props) => {
+            return (
+              <button onClick={props.turnOn}>Turn on</button>
+            )
+          }, {})}
+        </Lightbulb3>
       </div>
     )
   }
