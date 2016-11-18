@@ -18,14 +18,18 @@ class Select extends React.Component {
   }
 
   state = {
-    showList: true,
+    showList: false,
     value: null,
+  }
+
+  componentDidMount() {
+    this.setState({ value: this.props.defaultValue })
   }
 
   render() {
     return (
       <div className="select">
-        <div onClick={() => this.setState({ showList: true })} className="label">{this.props.value || this.state.value} <span className="arrow">▾</span></div>
+        <div onClick={() => this.setState({ showList: !this.state.showList })} className="label">{this.props.value || this.state.value} <span className="arrow">▾</span></div>
         <div className="options">
           {this.state.showList ? React.Children.map(this.props.children, c => {
             return React.cloneElement(c, { onChange: value => {
@@ -46,6 +50,40 @@ class Option extends React.Component {
   render() {
     return (
       <div onClick={event => this.props.onChange(this.props.value)} className="option">{this.props.children}</div>
+    )
+  }
+}
+
+class Lightbulb extends React.Component {
+  state = {
+    isOn: false,
+  }
+
+  render() {
+    return (
+      <div>
+        Light bulb is {this.state.isOn ? 'on' : 'off' }
+        <div>
+          {this.props.children}
+        </div>
+      </div>
+    )
+  }
+}
+
+class Lightbulb2 extends React.Component {
+  state = {
+    isOn: false,
+  }
+
+  render() {
+    return (
+      <div>
+        Light bulb is {this.state.isOn ? 'on' : 'off' }
+        <div>
+          {this.props.component(() => this.setState({ isOn: true }), () => this.setState({ isOn: false}))}
+        </div>
+      </div>
     )
   }
 }
@@ -81,12 +119,26 @@ class App extends React.Component {
         </Select>
 
         <h2>Uncontrolled</h2>
-        <Select defaultValue="tikka-masala">
+        <Select defaultValue="tandoori-chicken">
           <Option value="tikka-masala">Tikka Masala</Option>
           <Option value="tandoori-chicken">Tandoori Chicken</Option>
           <Option value="dosa">Dosa</Option>
           <Option value="mint-chutney">Mint Chutney</Option>
         </Select>
+
+        <h1>Tyler</h1>
+
+        <Lightbulb>
+          <button onClick={this.props.turnOn}>Turn on</button>
+          <button onClick={this.props.turnOff}>Turn off</button>
+        </Lightbulb>
+
+        <Lightbulb2 component={this.myLightbulb2 = (turnOn, turnOff) => (
+          <div>
+            <button onClick={turnOn}>Turn on</button>
+            <button onClick={turnOff}>Turn off</button>
+          </div>
+        )}/>
       </div>
     )
   }
