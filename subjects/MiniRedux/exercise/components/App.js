@@ -2,6 +2,10 @@ import React, { PropTypes } from 'react'
 import connect from '../mini-redux/connect'
 
 class App extends React.Component {
+  constructor(props) {
+    super(props)
+    console.log('props', props)
+  }
   increment = () => {
     this.props.dispatch({ type: 'INCREMENT' })
   }
