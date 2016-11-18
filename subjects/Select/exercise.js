@@ -19,17 +19,20 @@ class Select extends React.Component {
 
   state = {
     showList: true,
+    value: null,
   }
 
   render() {
     return (
       <div className="select">
-        <div onClick={() => this.setState({ showList: true })} className="label">{this.props.value} <span className="arrow">▾</span></div>
+        <div onClick={() => this.setState({ showList: true })} className="label">{this.props.value || this.state.value} <span className="arrow">▾</span></div>
         <div className="options">
           {this.state.showList ? React.Children.map(this.props.children, c => {
             return React.cloneElement(c, { onChange: value => {
               this.setState({ showList: false })
-              this.props.onChange(value)
+              this.props.onChange
+                ? this.props.onChange(value)
+                : this.setState({ value })
             }})
           }) : []}
         </div>
