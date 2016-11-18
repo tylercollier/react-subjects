@@ -20,6 +20,31 @@ import { render } from 'react-dom'
 import LoadingDots from './utils/LoadingDots'
 import getAddressFromCoords from './utils/getAddressFromCoords'
 
+class GeoAddress extends React.Component {
+  static propTypes = {
+    children: React.PropTypes.func.isRequired,
+    latitude: React.PropTypes.number,
+    longitude: React.PropTypes.number,
+  }
+
+  state = {
+    address: null,
+    error: null,
+  }
+  componentDidUpdate(nextProps) {
+    if (this.props.latitude && nextProps.latitude != this.props.latitude) {
+      getAddressFromCoords(this.props.latitude, this.props.longitude).then(address => {
+        console.log('address', address)
+        this.setState({ address })
+      }).catch(error => {
+        this.setState({ error })
+      })
+    }
+  }
+  render() {
+    return this.props.children(this.state)
+  }
+}
 
 class GeoPosition extends React.Component {
   static propTypes = {
@@ -73,6 +98,15 @@ class App extends React.Component {
                 <dd>{latitude || <LoadingDots/>}</dd>
                 <dt>Longitude</dt>
                 <dd>{longitude || <LoadingDots/>}</dd>
+                <GeoAddress latitude={latitude} longitude={longitude}>
+                  {({ address, error: addressError }) => {
+                    return addressError ? (
+                      <div>{addressError.message}</div>
+                    ) : (
+                      <div>Address is {address}</div>
+                    )
+                  }}
+                </GeoAddress>
               </dl>
             )}
           }
