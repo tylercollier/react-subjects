@@ -27,6 +27,7 @@ class Form extends React.Component {
   static childContextTypes = {
     submit: PropTypes.func.isRequired,
     onChangeValue: PropTypes.func.isRequired,
+    reset: PropTypes.func.isRequired,
   }
   getChildContext() {
     return {
@@ -34,16 +35,31 @@ class Form extends React.Component {
       onChangeValue: (name, value) => {
         this.setState({
           values: {
-            [name]: value,
+            ...Object.assign({}, this.state.values, {
+              [name]: value,
+
+            })
           }
         }, () => {
           this.props.onChange(this.state.values)
         })
+      },
+      reset: () => {
+        this.setState({ values: {} })
       }
     }
   }
   render() {
-    return <div>{this.props.children}</div>
+    // return <div>{this.props.children}</div>
+    return <div>
+      <pre>{JSON.stringify(this.state.values, null, 2)}</pre>
+      {React.Children.map(this.props.children, c => {
+        if (c.type === TextInput) {
+          return React.cloneElement(c, Object.assign({}, c.props, { value: this.state.values[c.props.name] }))
+        }
+        return c
+      })}
+    </div>
   }
 }
 
@@ -56,10 +72,20 @@ class SubmitButton extends React.Component {
   }
 }
 
+class ResetButton extends React.Component {
+  static contextTypes = {
+    reset: PropTypes.func.isRequired,
+  }
+  render() {
+    return <button onClick={this.context.reset}>{this.props.children}</button>
+  }
+}
+
 class TextInput extends React.Component {
   static contextTypes = {
     submit: PropTypes.func.isRequired,
     onChangeValue: PropTypes.func.isRequired,
+    value: PropTypes.string,
   }
   render() {
     return (
@@ -72,8 +98,10 @@ class TextInput extends React.Component {
             this.context.submit()
           }
         }}
+        value={this.props.value}
         onChange={(event) => {
           console.log('event', event)
+          this.setState({ value: event.target.value })
           this.context.onChangeValue(this.props.name, event.target.value)
         }}
       />
@@ -95,13 +123,14 @@ class App extends React.Component {
       <div>
         <h1>This isn't even my final <code>&lt;Form/&gt;</code>!</h1>
 
-        <Form onChange={this.onChange} onSubmit={this.handleSubmit}>
+        <Form onReset={this.reset} onChange={this.onChange} onSubmit={this.handleSubmit}>
           <p>
             <TextInput name="firstName" placeholder="First Name"/> {' '}
             <TextInput name="lastName" placeholder="Last Name"/>
           </p>
           <p>
             <SubmitButton>Submit</SubmitButton>
+            <ResetButton>Reset</ResetButton>
           </p>
         </Form>
       </div>
