@@ -81,7 +81,11 @@ class Lightbulb2 extends React.Component {
       <div>
         Light bulb is {this.state.isOn ? 'on' : 'off' }
         <div>
-          {this.props.component(() => this.setState({ isOn: true }), () => this.setState({ isOn: false}))}
+          {this.props.component({
+            turnOn: () => this.setState({ isOn: true }),
+            turnOff: () => this.setState({ isOn: false}),
+            flip: () => this.setState({ isOn: !this.state.isOn })
+          })}
         </div>
       </div>
     )
@@ -133,10 +137,11 @@ class App extends React.Component {
           <button onClick={this.props.turnOff}>Turn off</button>
         </Lightbulb>
 
-        <Lightbulb2 component={this.myLightbulb2 = (turnOn, turnOff) => (
+        <Lightbulb2 component={this.myLightbulb2 = ({turnOn, turnOff, flip}) => (
           <div>
             <button onClick={turnOn}>Turn on</button>
             <button onClick={turnOff}>Turn off</button>
+            <button onClick={flip}>Flip</button>
           </div>
         )}/>
       </div>
